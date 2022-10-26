@@ -1,29 +1,25 @@
-import React, { Component } from 'react';
+import React from 'react';
 import propsTypes from 'prop-types';
 
 import styles from 'components/Filter/style.module.css';
 
-class Filter extends Component {
-  render() {
-    const { filter, onChange } = this.props;
-
-    return (
-      <div className={styles.wrapper}>
-        <span className={styles.header}>Find contacts by name</span>
-        <input
-          type="search"
-          value={filter}
-          onChange={onChange}
-          className={styles.search}
-        />
-      </div>
-    );
-  }
-}
+const Filter = ({ filter, onChange }) => {
+  return (
+    <div className={styles.wrapper}>
+      <label className={styles.header}>Find contacts by name</label>
+      <input
+        type="search"
+        value={filter}
+        onChange={onChange}
+        className={styles.search}
+      />
+    </div>
+  );
+};
 
 Filter.propTypes = {
-  filter: propsTypes.string,
-  onChange: propsTypes.func,
+  filter: propsTypes.string.isRequired,
+  onChange: propsTypes.func.isRequired,
 };
 
 export default Filter;

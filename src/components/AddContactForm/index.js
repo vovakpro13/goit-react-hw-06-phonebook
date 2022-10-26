@@ -1,75 +1,65 @@
-import React, { Component } from 'react';
+import React, { useMemo, useState } from 'react';
 import propsTypes from 'prop-types';
 
 import styles from 'components/AddContactForm/style.module.css';
 
-class AddContactForm extends Component {
-  constructor(props) {
-    super(props);
+const AddContactForm = ({ onAddContact }) => {
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
 
-    this.state = { name: '', number: '' };
+  const handleChangeName = ({ target: { value } }) => setName(value);
+  const handleChangeNumber = ({ target: { value } }) => setNumber(value);
 
-    this.handleChangeName = this.handleChangeName.bind(this);
-    this.handleChangeNumber = this.handleChangeNumber.bind(this);
-    this.handleAddNewContact = this.handleAddNewContact.bind(this);
-  }
+  const handleAddNewContact = () => {
+    setName('');
+    setNumber('');
 
-  handleChangeName({ target: { value } }) {
-    this.setState({ name: value });
-  }
+    onAddContact({ name, number });
+  };
 
-  handleChangeNumber({ target: { value } }) {
-    this.setState({ number: value });
-  }
+  const isDisabled = useMemo(
+    () => !name.length || !number.length,
+    [name, number]
+  );
 
-  handleAddNewContact() {
-    this.setState({ name: '', number: '' });
-    this.props.onAddContact(this.state);
-  }
+  return (
+    <form onSubmit={handleAddNewContact} className={styles.wrapper}>
+      <label className={styles.label}>Name</label>
+      <input
+        type="text"
+        name="name"
+        pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
+        title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan."
+        required
+        value={name}
+        onChange={handleChangeName}
+      />
 
-  render() {
-    const { name, number } = this.state;
+      <label className={styles.label}>Number</label>
+      <input
+        type="tel"
+        name="number"
+        pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
+        title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
+        required
+        value={number}
+        onChange={handleChangeNumber}
+      />
 
-    const isDisabled = !name.length || !number.length;
-
-    return (
-      <div className={styles.wrapper}>
-        <span className={styles.label}>Name</span>
-        <input
-          type="text"
-          name="name"
-          pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-          title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan."
-          required
-          value={name}
-          onChange={this.handleChangeName}
-        />
-
-        <span className={styles.label}>Number</span>
-        <input
-          type="tel"
-          name="number"
-          pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-          title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-          required
-          value={number}
-          onChange={this.handleChangeNumber}
-        />
-
-        <button
-          disabled={isDisabled}
-          className={styles.button}
-          onClick={this.handleAddNewContact}
-        >
-          Add contact
-        </button>
-      </div>
-    );
-  }
-}
+      <button
+        type="submit"
+        disabled={isDisabled}
+        className={styles.button}
+        onClick={handleAddNewContact}
+      >
+        Add contact
+      </button>
+    </form>
+  );
+};
 
 AddContactForm.propTypes = {
-  onAddContact: propsTypes.func,
+  onAddContact: propsTypes.func.isRequired,
 };
 
 export default AddContactForm;

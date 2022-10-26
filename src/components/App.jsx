@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { nanoid } from 'nanoid';
 
 import Section from 'components/Section';
@@ -6,88 +6,68 @@ import AddContactForm from 'components/AddContactForm';
 import Filter from 'components/Filter';
 import ContactList from 'components/ContactList';
 import { defaultContacts } from 'constants/defaultContacts';
-import { LOCALSTORAGE_CONTACTS_KEY } from '../constants/common';
+import { LOCALSTORAGE_CONTACTS_KEY } from 'constants/common';
+import { filterContacts } from 'helpers/filterContacts';
 
-class App extends Component {
-  constructor(props) {
-    super(props);
+const App = () => {
+  const [contacts, setContacts] = useState(null);
+  const [filter, setFilter] = useState('');
 
-    this.state = { contacts: defaultContacts, filter: '' };
-
-    this.handleAddNewContact = this.handleAddNewContact.bind(this);
-    this.handleChangeFilter = this.handleChangeFilter.bind(this);
-    this.handleDeleteContact = this.handleDeleteContact.bind(this);
-  }
-
-  componentDidMount() {
+  useEffect(() => {
     const contactsFromStorage = localStorage.getItem(LOCALSTORAGE_CONTACTS_KEY);
 
-    if (contactsFromStorage) {
-      const parsedContacts = JSON.parse(contactsFromStorage);
-      return this.setState({ contacts: parsedContacts });
+    if (contactsFromStorage && JSON.parse(contactsFromStorage).length) {
+      return setContacts(JSON.parse(contactsFromStorage));
     }
 
-    localStorage.setItem(LOCALSTORAGE_CONTACTS_KEY, JSON.stringify([]));
-  }
+    setContacts(defaultContacts);
+  }, []);
 
-  writeContactsToLocalStorage(contacts) {
-    const jsonContacts = JSON.stringify(contacts);
-    localStorage.setItem(LOCALSTORAGE_CONTACTS_KEY, jsonContacts);
-  }
+  useEffect(() => {
+    if (contacts !== null) {
+      localStorage.setItem(LOCALSTORAGE_CONTACTS_KEY, JSON.stringify(contacts));
+    }
+  }, [contacts]);
 
-  handleAddNewContact(newContact) {
-    if (this.state.contacts.some(({ name }) => name === newContact.name)) {
+  const handleAddNewContact = newContact => {
+    if (contacts?.some(({ name }) => name === newContact.name)) {
       return alert(`${newContact.name} is already in contacts.`);
     }
 
-    this.setState(({ contacts }) => {
-      const newContacts = [{ id: nanoid(10), ...newContact }, ...contacts];
+    setContacts(contacts => [{ id: nanoid(10), ...newContact }, ...contacts]);
+  };
 
-      this.writeContactsToLocalStorage(newContacts);
+  const handleDeleteContact = deleteId => {
+    setContacts(contacts => contacts?.filter(({ id }) => deleteId !== id));
+  };
 
-      return { contacts: newContacts };
-    });
-  }
+  const handleChangeFilter = ({ target: { value: filter } }) =>
+    setFilter(filter);
 
-  handleChangeFilter({ target: { value: filter } }) {
-    this.setState({ filter });
-  }
+  const filteredContacts = useMemo(
+    () => filterContacts(contacts, filter),
+    [contacts, filter]
+  );
 
-  handleDeleteContact(deleteId) {
-    this.setState(({ contacts }) => {
-      const newContacts = contacts.filter(({ id }) => deleteId !== id);
+  return (
+    <div>
+      <Section title="Phonebook">
+        <AddContactForm onAddContact={handleAddNewContact} />
+      </Section>
 
-      this.writeContactsToLocalStorage(newContacts);
-
-      return { contacts: newContacts };
-    });
-  }
-
-  render() {
-    const { filter, contacts } = this.state;
-
-    const filteredContacts = contacts.filter(({ name }) =>
-      name.startsWith(filter.trim())
-    );
-
-    return (
-      <div>
-        <Section title="Phonebook">
-          <AddContactForm onAddContact={this.handleAddNewContact} />
-        </Section>
-
-        <Section title="Contacts">
-          <div>
-            <Filter filter={filter} onChange={this.handleChangeFilter} />
+      <Section title="Contacts">
+        <div>
+          <Filter filter={filter} onChange={handleChangeFilter} />
+          {contacts && (
             <ContactList
               contacts={filteredContacts}
-              onDeleteItem={this.handleDeleteContact}
+              onDeleteItem={handleDeleteContact}
             />
-          </div>
-        </Section>
-      </div>
-    );
-  }
-}
+          )}
+        </div>
+      </Section>
+    </div>
+  );
+};
 
 export default App;

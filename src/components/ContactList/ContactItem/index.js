@@ -1,28 +1,24 @@
-import React, { Component } from 'react';
+import React from 'react';
 import propsTypes from 'prop-types';
 
 import styles from 'components/ContactList/ContactItem/style.module.css';
 
-class ContactItem extends Component {
-  render() {
-    const { name, number, onDelete } = this.props;
+const ContactItem = ({ name, number, onDelete }) => {
+  return (
+    <li className={styles.root}>
+      <span className={styles.text}>
+        {name}: {number}
+      </span>
 
-    return (
-      <li className={styles.root}>
-        <span className={styles.text}>
-          {name}: {number}
-        </span>
-
-        <button onClick={onDelete}>Delete</button>
-      </li>
-    );
-  }
-}
+      <button onClick={onDelete}>Delete</button>
+    </li>
+  );
+};
 
 ContactItem.propTypes = {
-  name: propsTypes.string,
-  number: propsTypes.string,
-  onDelete: propsTypes.func,
+  name: propsTypes.string.isRequired,
+  number: propsTypes.string.isRequired,
+  onDelete: propsTypes.func.isRequired,
 };
 
 export default ContactItem;
