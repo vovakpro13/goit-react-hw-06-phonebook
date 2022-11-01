@@ -5,44 +5,33 @@ import Section from 'components/Section';
 import AddContactForm from 'components/AddContactForm';
 import Filter from 'components/Filter';
 import ContactList from 'components/ContactList';
-import { defaultContacts } from 'constants/defaultContacts';
-import { LOCALSTORAGE_CONTACTS_KEY } from 'constants/common';
 import { filterContacts } from 'helpers/filterContacts';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  addNewContact,
+  deleteContact,
+  selectContacts,
+  selectFilter,
+  setFilter,
+} from '../redux/contacts-reducer';
 
 const App = () => {
-  const [contacts, setContacts] = useState(null);
-  const [filter, setFilter] = useState('');
-
-  useEffect(() => {
-    const contactsFromStorage = localStorage.getItem(LOCALSTORAGE_CONTACTS_KEY);
-
-    if (contactsFromStorage && JSON.parse(contactsFromStorage).length) {
-      return setContacts(JSON.parse(contactsFromStorage));
-    }
-
-    setContacts(defaultContacts);
-  }, []);
-
-  useEffect(() => {
-    if (contacts !== null) {
-      localStorage.setItem(LOCALSTORAGE_CONTACTS_KEY, JSON.stringify(contacts));
-    }
-  }, [contacts]);
+  const filter = useSelector(selectFilter);
+  const contacts = useSelector(selectContacts);
+  const dispatch = useDispatch();
 
   const handleAddNewContact = newContact => {
     if (contacts?.some(({ name }) => name === newContact.name)) {
       return alert(`${newContact.name} is already in contacts.`);
     }
 
-    setContacts(contacts => [{ id: nanoid(10), ...newContact }, ...contacts]);
+    dispatch(addNewContact({ id: nanoid(10), ...newContact }));
   };
 
-  const handleDeleteContact = deleteId => {
-    setContacts(contacts => contacts?.filter(({ id }) => deleteId !== id));
-  };
+  const handleDeleteContact = deleteId => dispatch(deleteContact(deleteId));
 
-  const handleChangeFilter = ({ target: { value: filter } }) =>
-    setFilter(filter);
+  const handleChangeFilter = ({ target: { value } }) =>
+    dispatch(setFilter(value));
 
   const filteredContacts = useMemo(
     () => filterContacts(contacts, filter),
