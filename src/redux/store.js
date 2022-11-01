@@ -1,6 +1,6 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 
-import contactsReducer from 'redux/contacts-reducer';
+import appSlice from 'redux/slices/app-slice';
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
@@ -13,7 +13,7 @@ const persistConfig = {
 const persistedReducer = persistReducer(
   persistConfig,
   combineReducers({
-    [contactsReducer.name]: contactsReducer.reducer,
+    [appSlice.name]: appSlice.reducer,
   })
 );
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { nanoid } from 'nanoid';
 
 import Section from 'components/Section';
@@ -13,7 +13,7 @@ import {
   selectContacts,
   selectFilter,
   setFilter,
-} from '../redux/contacts-reducer';
+} from '../redux/slices/app-slice';
 
 const App = () => {
   const filter = useSelector(selectFilter);

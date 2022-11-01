@@ -1,12 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
-import {defaultContacts} from "constants/defaultContacts";
+import { defaultContacts } from 'constants/defaultContacts';
 
 const initialState = {
   contacts: defaultContacts,
   filter: '',
 };
 
-const counterSlice = createSlice({
+const appSlice = createSlice({
   name: 'app',
   initialState,
   reducers: {
@@ -24,9 +24,9 @@ const counterSlice = createSlice({
   },
 });
 
-export const { addNewContact, deleteContact, setFilter } = counterSlice.actions;
+export const { addNewContact, deleteContact, setFilter } = appSlice.actions;
 
 export const selectContacts = state => state.app.contacts;
 export const selectFilter = state => state.app.filter;
 
-export default counterSlice;
+export default appSlice;
